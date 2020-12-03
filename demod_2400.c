@@ -538,9 +538,9 @@ void demodulate2400AC(struct mag_buf *mag) {
         if (m[f1_sample + 2] > m[f1_sample + 0] || m[f1_sample + 2] > m[f1_sample + 1])
             continue; // quiet part of bit wasn't sufficiently quiet
 
-        unsigned f1_level = (m[f1_sample + 0] + m[f1_sample + 1]) / 2;
+        mag_t f1_level = (m[f1_sample + 0] + m[f1_sample + 1]) * 0.5;
 
-        if (noise_level * 2 > f1_level) {
+        if (noise_level * 2.0 > f1_level) {
             // require 6dB above noise
             continue;
         }
@@ -548,15 +548,15 @@ void demodulate2400AC(struct mag_buf *mag) {
         // estimate initial clock phase based on the amount of power
         // that ended up in the second sample
 
-        float f1a_power = (float) m[f1_sample] * m[f1_sample];
-        float f1b_power = (float) m[f1_sample + 1] * m[f1_sample + 1];
-        float fraction = f1b_power / (f1a_power + f1b_power);
-        unsigned f1_clock = (unsigned) (25 * (f1_sample + fraction * fraction) + 0.5);
+        mag_t f1a_power = m[f1_sample] * m[f1_sample];
+        mag_t f1b_power = m[f1_sample + 1] * m[f1_sample + 1];
+        mag_t fraction = f1b_power / (f1a_power + f1b_power);
+        mag_t f1_clock = 25.0 * (f1_sample + fraction * fraction);
 
         // same again for F2
         // F2 is 20.3us / 14 bit periods after F1
-        unsigned f2_clock = f1_clock + (87 * 14);
-        unsigned f2_sample = f2_clock / 25;
+        mag_t f2_clock = f1_clock + (87.0 * 14.0);
+        unsigned f2_sample = (unsigned)(f2_clock / 25.0);
         assert(f2_sample < mlen + Modes.trailing_samples);
 
         if (!(m[f2_sample - 1] < m[f2_sample + 0]))
@@ -565,16 +565,16 @@ void demodulate2400AC(struct mag_buf *mag) {
         if (m[f2_sample + 2] > m[f2_sample + 0] || m[f2_sample + 2] > m[f2_sample + 1])
             continue; // quiet part of bit wasn't sufficiently quiet
 
-        unsigned f2_level = (m[f2_sample + 0] + m[f2_sample + 1]) / 2;
+        mag_t f2_level = (m[f2_sample + 0] + m[f2_sample + 1]) / 2;
 
         if (noise_level * 2 > f2_level) {
             // require 6dB above noise
             continue;
         }
 
-        unsigned f1f2_level = (f1_level > f2_level ? f1_level : f2_level);
+        mag_t f1f2_level = (f1_level > f2_level ? f1_level : f2_level);
 
-        mag_t midpoint = sqrtf(noise_level * f1f2_level); // geometric mean of the two levels
+        mag_t midpoint = sqrt(noise_level * f1f2_level); // geometric mean of the two levels
         mag_t signal_threshold = midpoint * M_SQRT2; // +3dB
         mag_t noise_threshold = midpoint / M_SQRT2; // -3dB
 
