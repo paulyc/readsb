@@ -481,7 +481,7 @@ int decodeModesMessage(struct modesMessage *mm, unsigned char *msg) {
                 if (ei->errors > 1)
                     return -2; // can't correct errors
 
-                mm->correctedbits = ei->errors;
+                //mm->correctedbits = ei->errors;
                 mm->IID = 0;
                 modesChecksumFix(msg, ei);
 
@@ -512,7 +512,7 @@ int decodeModesMessage(struct modesMessage *mm, unsigned char *msg) {
                 }
 
                 addr1 = getbits(msg, 9, 32);
-                mm->correctedbits = ei->errors;
+                //mm->correctedbits = ei->errors;
                 modesChecksumFix(msg, ei);
                 addr2 = getbits(msg, 9, 32);
 
