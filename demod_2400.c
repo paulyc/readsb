@@ -551,12 +551,12 @@ void demodulate2400AC(struct mag_buf *mag) {
         mag_t f1a_power = m[f1_sample] * m[f1_sample];
         mag_t f1b_power = m[f1_sample + 1] * m[f1_sample + 1];
         mag_t fraction = f1b_power / (f1a_power + f1b_power);
-        mag_t f1_clock = 25.0 * (f1_sample + fraction * fraction);
+        unsigned f1_clock = (unsigned) (25 * (f1_sample + fraction * fraction) + 0.5);
 
         // same again for F2
         // F2 is 20.3us / 14 bit periods after F1
-        mag_t f2_clock = f1_clock + (87.0 * 14.0);
-        unsigned f2_sample = (unsigned)(f2_clock / 25.0);
+        unsigned f2_clock = f1_clock + (87 * 14);
+        unsigned f2_sample = (unsigned)(f2_clock / 25);
         assert(f2_sample < mlen + Modes.trailing_samples);
 
         if (!(m[f2_sample - 1] < m[f2_sample + 0]))
