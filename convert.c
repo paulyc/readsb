@@ -53,7 +53,7 @@ static bool init_uc8_lookup() {
                 magsq = 1.0;
             mag_t mag = sqrt(magsq);
 
-            uc8_lookup[le16toh((i * 256) + q)] = mag * 65535.0;
+            uc8_lookup[le16toh((i * 256) + q)] = mag;
         }
     }
 
@@ -102,11 +102,11 @@ static void convert_uc8_nodc(void *iq_data,
 #undef DO_ONE_SAMPLE
 
     if (out_mean_level) {
-        *out_mean_level = sum_level / 65535.0 / nsamples;
+        *out_mean_level = sum_level / nsamples;
     }
 
     if (out_mean_power) {
-        *out_mean_power = sum_power / 65535.0 / 65535.0 / nsamples;
+        *out_mean_power = sum_power / nsamples;
     }
 }
 
@@ -146,7 +146,7 @@ static void convert_uc8_generic(void *iq_data,
         const mag_t mag = sqrt(magsq);
         sum_power += magsq;
         sum_level += mag;
-        *mag_data++ = mag * 65535.0;
+        *mag_data++ = mag;
     }
 
     state->z1_I = z1_I;
