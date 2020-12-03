@@ -32,11 +32,11 @@ typedef enum
 } input_format_t;
 
 typedef void (*iq_convert_fn)(void *iq_data,
-                              uint16_t *mag_data,
+                              mag_t *mag_data,
                               unsigned nsamples,
                               struct converter_state *state,
-                              double *out_mean_level,
-                              double *out_mean_power);
+                              mag_t *out_mean_level,
+                              mag_t *out_mean_power);
 
 iq_convert_fn init_converter (input_format_t format,
                               double sample_rate,

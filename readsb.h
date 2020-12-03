@@ -318,6 +318,8 @@ typedef enum {
 
 // Include subheaders after all the #defines are in place
 
+typedef double mag_t;
+
 #include "util.h"
 #include "fasthash.h"
 #include "anet.h"
@@ -350,7 +352,7 @@ struct mag_buf
     uint32_t dropped; // Number of dropped samples preceding this buffer
     unsigned length; // Number of valid samples _after_ overlap. Total buffer length is buf->length + Modes.trailing_samples.
     uint64_t sysTimestamp; // Estimated system time at start of block
-    uint16_t *data; // Magnitude data. Starts with Modes.trailing_samples worth of overlap from the previous block
+    mag_t *data; // Magnitude data. Starts with Modes.trailing_samples worth of overlap from the previous block
 #if defined(__arm__)
     /*padding 4 bytes*/
     uint32_t padding;

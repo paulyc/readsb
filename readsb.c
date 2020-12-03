@@ -262,7 +262,7 @@ static void modesInit(void) {
 
     if (!Modes.net_only) {
         for (int i = 0; i < MODES_MAG_BUFFERS; ++i) {
-            if ((Modes.mag_buffers[i].data = calloc(MODES_MAG_BUF_SAMPLES + Modes.trailing_samples, sizeof (uint16_t))) == NULL) {
+            if ((Modes.mag_buffers[i].data = calloc(MODES_MAG_BUF_SAMPLES + Modes.trailing_samples, sizeof (mag_t))) == NULL) {
                 fprintf(stderr, "Out of memory allocating magnitude buffer.\n");
                 exit(1);
             }
