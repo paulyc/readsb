@@ -1771,7 +1771,7 @@ static int decodeBinMessage(struct client *c, char *p, int remote, uint64_t now)
     mm.sysTimestampMsg = now;
 
     ch = *p++; // Grab the signal level
-    mm.signalLevel = ((unsigned char) ch / 255.0);
+    //mm.signalLevel = ((unsigned char) ch / 255.0);
     mm.signalLevel = mm.signalLevel * mm.signalLevel;
 
     /* In case of Mode-S Beast use the signal level per message for statistics */
