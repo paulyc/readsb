@@ -1110,14 +1110,14 @@ struct aircraft *trackUpdateFromMessage(struct modesMessage *mm) {
         return NULL;
     }
 
-    if (mm->signalLevel > 0) {
+    if (mm->signalLevel > 0.0) {
 
         a->signalLevel[a->signalNext] = mm->signalLevel;
         a->signalNext = (a->signalNext + 1) & 7;
 
         if (a->no_signal_count >= 10) {
             for (int i = 0; i < 8; ++i) {
-                a->signalLevel[i] = fmax(0, mm->signalLevel);
+                a->signalLevel[i] = mm->signalLevel;
             }
         }
         if (a->no_signal_count > 0)

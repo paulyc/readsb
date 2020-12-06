@@ -57,7 +57,7 @@ struct aircraft *aircraftCreate(struct modesMessage *mm) {
     a->addr = mm->addr;
     a->addrtype = ADDR_UNKNOWN;
     for (int i = 0; i < 8; ++i) {
-        a->signalLevel[i] = fmax(0, mm->signalLevel);
+        a->signalLevel[i] = mm->signalLevel;
     }
     a->signalNext = 0;
 
