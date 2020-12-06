@@ -341,7 +341,7 @@ void demodulate2400(struct mag_buf *mag) {
         // measure signal power
         {
             double signal_power;
-            uint64_t scaled_signal_power = 0;
+            double scaled_signal_power = 0;
             int signal_len = msglen * 12 / 5;
             int k;
 
