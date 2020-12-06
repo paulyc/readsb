@@ -476,7 +476,7 @@ static void draw_modeac(uint16_t *m, unsigned modeac, unsigned f1_clock, unsigne
 void demodulate2400AC(struct mag_buf *mag) {
     struct modesMessage mm;
     mag_t *m = mag->data;
-    mag_t mlen = mag->length;
+    unsigned mlen = mag->length;
     unsigned f1_sample;
 
     memset(&mm, 0, sizeof (mm));
