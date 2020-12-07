@@ -24,10 +24,10 @@
 #include "readsb.h"
 
 struct converter_state {
-    float dc_a;
-    float dc_b;
-    float z1_I;
-    float z1_Q;
+    double dc_a;
+    double dc_b;
+    double z1_I;
+    double z1_Q;
 };
 
 static uint16_t *uc8_lookup;
@@ -44,16 +44,19 @@ static bool init_uc8_lookup() {
 
     for (int i = 0; i <= 255; i++) {
         for (int q = 0; q <= 255; q++) {
-            float fI, fQ, magsq;
+            int sI = i - 128, sQ = q - 128;
+            double fI = sI > 0 ? sI / 127.0 : sI / 128.0;
+            double fQ = sQ > 0 ? sQ / 127.0 : sQ / 128.0;
+            double magsq = fI * fI + fQ * fQ;
 
-            fI = (i - 127.5) / 127.5;
-            fQ = (q - 127.5) / 127.5;
-            magsq = fI * fI + fQ * fQ;
-            if (magsq > 1)
-                magsq = 1;
-            float mag = sqrtf(magsq);
+            //fI = (i - 127.5) / 127.5;
+            //fQ = (q - 127.5) / 127.5;
+            //magsq = fI * fI + fQ * fQ;
+            if (magsq > 1.0)
+                magsq = 1.0;
+            double mag = sqrt(magsq);
 
-            uc8_lookup[le16toh((i * 256) + q)] = (uint16_t) (mag * 65535.0f + 0.5f);
+            uc8_lookup[le16toh((i * 256) + q)] = (uint16_t) (mag * 65535.0 + 0.5);
         }
     }
 
@@ -117,21 +120,26 @@ static void convert_uc8_generic(void *iq_data,
         double *out_mean_level,
         double *out_mean_power) {
     uint8_t *in = iq_data;
-    float z1_I = state->z1_I;
-    float z1_Q = state->z1_Q;
-    const float dc_a = state->dc_a;
-    const float dc_b = state->dc_b;
+    double z1_I = state->z1_I;
+    double z1_Q = state->z1_Q;
+    const double dc_a = state->dc_a;
+    const double dc_b = state->dc_b;
 
     unsigned i;
     uint8_t I, Q;
-    float fI, fQ, magsq;
-    float sum_level = 0, sum_power = 0;
+    int sI, sQ;
+    double fI, fQ, magsq;
+    double sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
         I = *in++;
         Q = *in++;
-        fI = (I - 127.5f) / 127.5f;
-        fQ = (Q - 127.5f) / 127.5f;
+        sI = I - 128;
+        sQ = Q - 128;
+        //fI = (I - 127.5f) / 127.5f;
+        //fQ = (Q - 127.5f) / 127.5f;
+        fI = sI > 0 ? sI / 127.0 : sI / 128.0;
+        fQ = sQ > 0 ? sQ / 127.0 : sQ / 128.0;
 
         // DC block
         z1_I = fI * dc_a + z1_I * dc_b;
@@ -140,13 +148,13 @@ static void convert_uc8_generic(void *iq_data,
         fQ -= z1_Q;
 
         magsq = fI * fI + fQ * fQ;
-        if (magsq > 1)
-            magsq = 1;
+        if (magsq > 1.0)
+            magsq = 1.0;
 
-        float mag = sqrtf(magsq);
+        double mag = sqrt(magsq);
         sum_power += magsq;
         sum_level += mag;
-        *mag_data++ = (uint16_t) (mag * 65535.0f + 0.5f);
+        *mag_data++ = (uint16_t) (mag * 65535.0 + 0.5);
     }
 
     state->z1_I = z1_I;

@@ -548,9 +548,9 @@ void demodulate2400AC(struct mag_buf *mag) {
         // estimate initial clock phase based on the amount of power
         // that ended up in the second sample
 
-        float f1a_power = (float) m[f1_sample] * m[f1_sample];
-        float f1b_power = (float) m[f1_sample + 1] * m[f1_sample + 1];
-        float fraction = f1b_power / (f1a_power + f1b_power);
+        unsigned f1a_power = m[f1_sample] * m[f1_sample];
+        unsigned f1b_power = m[f1_sample + 1] * m[f1_sample + 1];
+        double fraction = ((double)f1b_power) / (f1a_power + f1b_power);
         unsigned f1_clock = (unsigned) (25 * (f1_sample + fraction * fraction) + 0.5);
 
         // same again for F2
@@ -574,7 +574,7 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         unsigned f1f2_level = (f1_level > f2_level ? f1_level : f2_level);
 
-        float midpoint = sqrtf(noise_level * f1f2_level); // geometric mean of the two levels
+        double midpoint = sqrt(((double)noise_level) * f1f2_level); // geometric mean of the two levels
         unsigned signal_threshold = (unsigned) (midpoint * M_SQRT2 + 0.5); // +3dB
         unsigned noise_threshold = (unsigned) (midpoint / M_SQRT2 + 0.5); // -3dB
 
