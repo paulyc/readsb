@@ -115,7 +115,7 @@ static int accept_data(data_validity *d, datasource_t source, struct modesMessag
         if (Modes.net_output_beast_reduce_interval > 7000 && mm->cpr_valid) {
             d->next_reduce_forward = receiveTime + 7000;
         }
-        mm->reduce_forward = 1;
+        mm->reduce_forward = 0;
     }
     return 1;
 }
@@ -589,7 +589,7 @@ static void setPosition(struct aircraft *a, struct modesMessage *mm, uint64_t no
         showPositionDebug(a, mm, now);
     }
 
-    if (now < a->seen_pos + 3 * SECONDS && a->lat == mm->decoded_lat && a->lon == mm->decoded_lon) {
+    if (now < a->seen_pos + 1 * SECONDS && a->lat == mm->decoded_lat && a->lon == mm->decoded_lon) {
         // don't use duplicate positions for beastReduce
         mm->reduce_forward = 0;
         mm->duplicate = 1;
@@ -1640,7 +1640,7 @@ end_alt:
     if (mm->msgtype == 11 && mm->IID == 0 && mm->correctedbits == 0 && now > a->next_reduce_forward_DF11) {
 
         a->next_reduce_forward_DF11 = now + Modes.net_output_beast_reduce_interval * 4;
-        mm->reduce_forward = 1;
+        mm->reduce_forward = 0;
     }
 
     if (haveScratch && (mm->garbage || mm->pos_bad || mm->duplicate)) {
