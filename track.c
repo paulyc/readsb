@@ -589,7 +589,7 @@ static void setPosition(struct aircraft *a, struct modesMessage *mm, uint64_t no
         showPositionDebug(a, mm, now);
     }
 
-    if (now < a->seen_pos + 1 * SECONDS && a->lat == mm->decoded_lat && a->lon == mm->decoded_lon) {
+    if (now < a->seen_pos + (SECONDS>>1) && a->lat == mm->decoded_lat && a->lon == mm->decoded_lon) {
         // don't use duplicate positions for beastReduce
         mm->reduce_forward = 0;
         mm->duplicate = 1;
