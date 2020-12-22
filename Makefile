@@ -104,3 +104,8 @@ oneoff/convert_benchmark: oneoff/convert_benchmark.o convert.o util.o
 
 oneoff/decode_comm_b: oneoff/decode_comm_b.o comm_b.o ais_charset.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -g -o $@ $^ -lm
+
+install: readsb
+	sudo systemctl stop readsb
+	sudo cp readsb /usr/local/bin/readsb
+	sudo systemctl start readsb
