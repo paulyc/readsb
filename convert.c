@@ -45,16 +45,17 @@ static void convert_uc8(void *iq_data,
     const mag_t dc_b = state->dc_b;
 
     unsigned i;
-    uint8_t I, Q;
-    float fI, fQ, magsq;
-    float sum_level = 0, sum_power = 0;
+    int I, Q;
+    mag_t fI, fQ, magsq;
+    mag_t sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
         I = *in++;
         Q = *in++;
-        int sI = I - 128, sQ = Q - 128;
-        fI = sI > 0 ? sI / 127.0 : sI / 128.0;
-        fQ = sQ > 0 ? sQ / 127.0 : sQ / 128.0;
+        I -= 128;
+	Q -= 128;
+        fI = I > 0 ? I / 127.0 : I / 128.0;
+        fQ = Q > 0 ? Q / 127.0 : Q / 128.0;
 
         // DC block
         z1_I = fI * dc_a + z1_I * dc_b;
