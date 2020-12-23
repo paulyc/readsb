@@ -105,9 +105,15 @@ oneoff/convert_benchmark: oneoff/convert_benchmark.o convert.o util.o
 oneoff/decode_comm_b: oneoff/decode_comm_b.o comm_b.o ais_charset.o
 	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 
-reinstall: clean
-	make -j5
+reinstall: readsb
 	sudo systemctl stop readsb
 	sudo cp readsb /usr/local/bin/readsb
 	sudo systemctl start readsb
 .PHONY: reinstall
+
+clean_reinstall: clean
+	make -j5
+	sudo systemctl stop readsb
+	sudo cp readsb /usr/local/bin/readsb
+	sudo systemctl start readsb
+.PHONY: clean_reinstall
