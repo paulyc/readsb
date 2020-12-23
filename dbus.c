@@ -91,7 +91,7 @@ static void *dbusThreadEntryPoint(void *arg) {
             else if (dbus_message_is_signal(msg, "io.github.readsb", "GetVar")) {
                 char buf[1024];
                 snprintf(buf, sizeof(buf), "snr1=%f snr2=%f", g_dbusvars.demod_snr1, g_dbusvars.demod_snr2);
-                DBusMessage *reply = dbus_message_new_signal("/io/github/readsb/Status", "io.github.readsb", buf);
+                DBusMessage *reply = dbus_message_new_signal("/io/github/readsb", "io.github.readsb.Status", buf);
                 dbus_connection_send(bus, reply, NULL);
                 dbus_connection_flush(bus);
                 dbus_message_unref(reply);
