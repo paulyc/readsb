@@ -45,6 +45,18 @@
 // nb: the correlation functions sum to zero, so we do not need to adjust for the DC offset in the input signal
 // (adding any constant value to all of m[0..3] does not change the result)
 
+#define _6dB 1.9952623149688795
+#define _5dB 1.7782794100389228
+#define _4dB 1.5848931924611136
+#define _3_5dB 1.4962356560944334
+#define _3dB 1.4125375446227544
+#define _2_5dB 1.333521432163324
+#define _2dB 1.2589254117941673
+#define _1dB 1.1220184543019633
+
+#define MIN_SNR1 1.2589254117941673
+#define MIN_SNR2 1.7782794100389228
+
 static inline mag_t slice_phase0(mag_t *m) {
     return 5.0 * m[0] - 3.0 * m[1] - 2.0 * m[2];
 }
@@ -155,7 +167,7 @@ void demodulate2400(struct mag_buf *mag) {
         }
 
         // Check for enough signal
-        if (base_signal * 2 < 3 * base_noise) // about 3.5dB SNR
+        if (base_signal < _3dB * base_noise) // about 3dB SNR
             continue;
 
         // Check that the "quiet" bits 6,7,15,16,17 are actually quiet
@@ -540,8 +552,8 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         unsigned f1_level = (m[f1_sample + 0] + m[f1_sample + 1]) / 2;
 
-        if (noise_level * 2 > f1_level) {
-            // require 6dB above noise
+        if (noise_level * _5dB > f1_level) {
+            // require 5dB above noise
             continue;
         }
 
@@ -567,8 +579,8 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         unsigned f2_level = (m[f2_sample + 0] + m[f2_sample + 1]) / 2;
 
-        if (noise_level * 2 > f2_level) {
-            // require 6dB above noise
+        if (noise_level * _5dB > f2_level) {
+            // require 5dB above noise
             continue;
         }
 
