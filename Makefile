@@ -84,6 +84,12 @@ readsb: readsb.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o
 viewadsb: viewadsb.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o stats.o cpr.o icao_filter.o track.o util.o fasthash.o ais_charset.o globe_index.o geomag.o receiver.o aircraft.o $(COMPAT)
 	$(CC) -g -o $@ $^ $(LDFLAGS) $(LIBS) -lncurses
 
+install: readsb viewadsb
+	sudo systemctl stop readsb
+	sudo cp readsb viewadsb /usr/local/bin
+	sudo systemctl start readsb
+.PHONY: install
+
 clean:
 	rm -f *.o compat/clock_gettime/*.o compat/clock_nanosleep/*.o readsb viewadsb cprtests crctests convert_benchmark
 
@@ -105,7 +111,3 @@ oneoff/convert_benchmark: oneoff/convert_benchmark.o convert.o util.o
 oneoff/decode_comm_b: oneoff/decode_comm_b.o comm_b.o ais_charset.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -g -o $@ $^ -lm
 
-install: readsb
-	sudo systemctl stop readsb
-	sudo cp readsb /usr/local/bin/readsb
-	sudo systemctl start readsb

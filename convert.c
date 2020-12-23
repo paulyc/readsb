@@ -31,6 +31,9 @@ struct converter_state {
     mag_t z1_Q;
 };
 
+static const double inv_int8_max = 1.0 / 127.0;
+static const double inv_int8_min = 1.0 / 128.0;
+
 static void convert_uc8(void *iq_data,
         mag_t *mag_data,
         unsigned nsamples,
@@ -39,10 +42,6 @@ static void convert_uc8(void *iq_data,
         double *out_mean_power,
         int dcfilter) {
     uint8_t *in = iq_data;
-    mag_t z1_I = state->z1_I;
-    mag_t z1_Q = state->z1_Q;
-    const mag_t dc_a = state->dc_a;
-    const mag_t dc_b = state->dc_b;
 
     unsigned i;
     int I, Q;
@@ -50,19 +49,17 @@ static void convert_uc8(void *iq_data,
     mag_t sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
-        I = *in++;
-        Q = *in++;
-        I -= 128;
-	Q -= 128;
-        fI = I > 0 ? I / 127.0 : I / 128.0;
-        fQ = Q > 0 ? Q / 127.0 : Q / 128.0;
+        I = *in++ - 128;
+        Q = *in++ - 128;
+        fI = I > 0 ? I * inv_int8_max : I * inv_int8_min;
+        fQ = Q > 0 ? Q * inv_int8_max : Q * inv_int8_min;
 
         // DC block
-        z1_I = fI * dc_a + z1_I * dc_b;
-        z1_Q = fQ * dc_a + z1_Q * dc_b;
         if (dcfilter) {
-            fI -= z1_I;
-            fQ -= z1_Q;
+            state->z1_I = fI * state->dc_a + state->z1_I * state->dc_b;
+            state->z1_Q = fQ * state->dc_a + state->z1_Q * state->dc_b;
+            fI -= state->z1_I;
+            fQ -= state->z1_Q;
         }
 
         magsq = fI * fI + fQ * fQ;
@@ -74,9 +71,6 @@ static void convert_uc8(void *iq_data,
         sum_level += mag;
         *mag_data++ = mag;
     }
-
-    state->z1_I = z1_I;
-    state->z1_Q = z1_Q;
 
     if (out_mean_level) {
         *out_mean_level = sum_level / nsamples;
