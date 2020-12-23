@@ -1,13 +1,13 @@
 PROGNAME=readsb
 #READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
-READSB_VERSION := main
+READSB_VERSION := dev
 RTLSDR ?= yes
 BLADERF ?= no
 PLUTOSDR ?= no
 AGGRESSIVE ?= yes
 HAVE_BIASTEE ?= yes
 
-CFLAGS += -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include/ -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
+CFLAGS += -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/usr/lib64/dbus-1.0/include/ -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
 
 #OPTIMIZE ?= -march=native
 

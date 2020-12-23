@@ -36,7 +36,7 @@ static void *dbusThreadEntryPoint(void *arg) {
     DBusMessageIter args;
 
     dbus_error_init(&err);
-    bus = dbus_bus_get(DBUS_BUS_SESSION, &err);
+    bus = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
     if (dbus_error_is_set(&err)) {
         fprintf(stderr, "Bus Error (%s)\n", err.message);
         return (void*)1;
