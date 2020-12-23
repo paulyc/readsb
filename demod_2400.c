@@ -155,7 +155,7 @@ void demodulate2400(struct mag_buf *mag) {
         }
 
         // Check for enough signal
-        if (base_signal < 1.333 * base_noise) // about 3.5dB SNR
+        if (base_signal * 2 < 3 * base_noise) // about 3.5dB SNR
             continue;
 
         // Check that the "quiet" bits 6,7,15,16,17 are actually quiet
@@ -540,7 +540,7 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         unsigned f1_level = (m[f1_sample + 0] + m[f1_sample + 1]) / 2;
 
-        if (noise_level * 1.77 > f1_level) {
+        if (noise_level * 2 > f1_level) {
             // require 6dB above noise
             continue;
         }
@@ -567,7 +567,7 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         unsigned f2_level = (m[f2_sample + 0] + m[f2_sample + 1]) / 2;
 
-        if (noise_level * 1.77 > f2_level) {
+        if (noise_level * 2 > f2_level) {
             // require 6dB above noise
             continue;
         }
