@@ -32,10 +32,11 @@ struct converter_state {
 
 static mag_t *uc8_lookup;
 
-static const mag_t INV_UINT8_MAX = 1.0 / UINT8_MAX;
+static const mag_t INV_INT8_MAX = 1.0 / 127.0;
+static const mag_t INV_INT8_MIN = 1.0 / 128.0;
+#if 0
 static const mag_t INV_INT16_MAX = 1.0 / INT16_MAX;
 static const mag_t INV_INT16_MIN = 1.0 / INT16_MIN;
-#if 0
 static const mag_t INV_INT8_MAX = 1.0 / INT8_MAX;
 static const mag_t INV_INT8_MIN = 1.0 / INT8_MIN;
 static const mag_t INV_UINT16_MAX = 1.0 / UINT16_MAX;
@@ -59,8 +60,8 @@ static bool init_uc8_lookup() {
         for (int q = 0; q <= 255; q++) {
             mag_t fI, fQ, magsq;
 
-            fI = i * INV_UINT8_MAX;
-            fQ = q * INV_UINT8_MAX;
+            fI = (i-128) * INV_INT8_MAX;
+            fQ = (q-128) * INV_INT8_MIN;
             magsq = fI * fI + fQ * fQ;
             if (magsq > 1.0)
                 magsq = 1.0;
@@ -123,6 +124,8 @@ static void convert_uc8_nodc(void *iq_data,
     }
 }
 
+static int dcfilter = 0;
+
 static void convert_uc8_generic(void *iq_data,
         mag_t *mag_data,
         unsigned nsamples,
@@ -136,21 +139,23 @@ static void convert_uc8_generic(void *iq_data,
     const mag_t dc_b = state->dc_b;
 
     unsigned i;
-    uint8_t I, Q;
+    int16_t I, Q;
     mag_t fI, fQ, magsq;
     mag_t sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
         I = *in++;
         Q = *in++;
-        fI = I * INV_UINT8_MAX;
-        fQ = Q * INV_UINT8_MAX;
+        fI = (I-128) * INV_INT8_MAX;
+        fQ = (Q-128) * INV_INT8_MIN;
 
         // DC block
-        z1_I = fI * dc_a + z1_I * dc_b;
-        z1_Q = fQ * dc_a + z1_Q * dc_b;
-        fI -= z1_I;
-        fQ -= z1_Q;
+        if (dcfilter) {
+            z1_I = fI * dc_a + z1_I * dc_b;
+            z1_Q = fQ * dc_a + z1_Q * dc_b;
+            fI -= z1_I;
+            fQ -= z1_Q;
+        }
 
         magsq = fI * fI + fQ * fQ;
         if (magsq > 1)
@@ -162,8 +167,10 @@ static void convert_uc8_generic(void *iq_data,
         *mag_data++ = mag;
     }
 
-    state->z1_I = z1_I;
-    state->z1_Q = z1_Q;
+    if (dcfilter) {
+        state->z1_I = z1_I;
+        state->z1_Q = z1_Q;
+    }
 
     if (out_mean_level) {
         *out_mean_level = sum_level / nsamples;
@@ -174,6 +181,7 @@ static void convert_uc8_generic(void *iq_data,
     }
 }
 
+#if 0
 static void convert_sc16_generic(void *iq_data,
         mag_t *mag_data,
         unsigned nsamples,
@@ -434,6 +442,7 @@ static void convert_sc16q11_generic(void *iq_data,
         *out_mean_power = sum_power / nsamples;
     }
 }
+#endif
 
 static struct {
     input_format_t format;
@@ -445,6 +454,7 @@ static struct {
     // In order of preference
     { INPUT_UC8, 0, convert_uc8_nodc, "UC8, integer/table path", init_uc8_lookup},
     { INPUT_UC8, 1, convert_uc8_generic, "UC8, float path", NULL},
+#if 0
     { INPUT_SC16, 0, convert_sc16_nodc, "SC16, float path, no DC", NULL},
     { INPUT_SC16, 1, convert_sc16_generic, "SC16, float path", NULL},
 #if defined(SC16Q11_TABLE_BITS)
@@ -453,6 +463,7 @@ static struct {
     { INPUT_SC16Q11, 0, convert_sc16q11_nodc, "SC16Q11, float path, no DC", NULL},
 #endif
     { INPUT_SC16Q11, 1, convert_sc16q11_generic, "SC16Q11, float path", NULL},
+#endif
     { 0, 0, NULL, NULL, NULL}
 };
 
