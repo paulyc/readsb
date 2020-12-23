@@ -1,11 +1,11 @@
 PROGNAME=readsb
 READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
 
-RTLSDR ?= no
+RTLSDR ?= yes
 BLADERF ?= no
 PLUTOSDR ?= no
 AGGRESSIVE ?= no
-HAVE_BIASTEE ?= no
+HAVE_BIASTEE ?= yes
 
 CPPFLAGS += -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
 
