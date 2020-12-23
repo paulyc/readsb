@@ -32,9 +32,10 @@ struct converter_state {
 
 static mag_t *uc8_lookup;
 
-static const mag_t INV_INT8_MAX = 1.0 / 127.0;
-static const mag_t INV_INT8_MIN = 1.0 / 128.0;
+static const mag_t INV_INT8 = 1.0 / 127.5;
 #if 0
+static const mag_t INV_INT8_MIN = 1.0 / 128.0;
+static const mag_t INV_INT8_MIN = 1.0 / 128.0;
 static const mag_t INV_INT16_MAX = 1.0 / INT16_MAX;
 static const mag_t INV_INT16_MIN = 1.0 / INT16_MIN;
 static const mag_t INV_INT8_MAX = 1.0 / INT8_MAX;
@@ -60,8 +61,8 @@ static bool init_uc8_lookup() {
         for (int q = 0; q <= 255; q++) {
             mag_t fI, fQ, magsq;
 
-            fI = (i-128) * INV_INT8_MAX;
-            fQ = (q-128) * INV_INT8_MIN;
+            fI = (i-127.5) * INV_INT8;
+            fQ = (q-127.5) * INV_INT8;
             magsq = fI * fI + fQ * fQ;
             if (magsq > 1.0)
                 magsq = 1.0;
@@ -139,15 +140,12 @@ static void convert_uc8_generic(void *iq_data,
     const mag_t dc_b = state->dc_b;
 
     unsigned i;
-    int16_t I, Q;
     mag_t fI, fQ, magsq;
     mag_t sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
-        I = *in++;
-        Q = *in++;
-        fI = (I-128) * INV_INT8_MAX;
-        fQ = (Q-128) * INV_INT8_MIN;
+        fI = ( *in++ -127.5) * INV_INT8;
+        fQ = ( *in++ -127.5) * INV_INT8;
 
         // DC block
         if (dcfilter) {
