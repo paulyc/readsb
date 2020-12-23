@@ -198,7 +198,7 @@ static void modesInitConfig(void) {
     Modes.net_input_beast_ports = strdup("0");
     Modes.net_output_beast_ports = strdup("0");
     Modes.net_output_beast_reduce_ports = strdup("0");
-    Modes.net_output_beast_reduce_interval = 125;
+    Modes.net_output_beast_reduce_interval = 0;
     Modes.net_output_vrs_ports = strdup("0");
     Modes.net_output_vrs_interval = 5 * SECONDS;
     Modes.net_output_json_ports = strdup("0");
@@ -218,7 +218,7 @@ static void modesInitConfig(void) {
     Modes.netReceiverId = 0;
     Modes.netIngest = 0;
     Modes.uuidFile = strdup("/boot/adsbx-uuid");
-    Modes.json_trace_interval = 30 * 1000;
+    Modes.json_trace_interval = 1 * 1000;
     Modes.heatmap_current_interval = -1;
     Modes.heatmap_interval = 60 * SECONDS;
     Modes.json_reliable = -13;
