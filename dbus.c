@@ -88,6 +88,9 @@ static void *dbusThreadEntryPoint(void *arg) {
                 }
              }
 
+            else if (dbus_message_is_signal(msg, "io.github.readsb", "GetVar")) {
+                printf("%f %f\n", g_dbusvars.demod_snr1, g_dbusvars.demod_snr2);
+            }
             // free the message
             dbus_message_unref(msg);
         } else {
