@@ -31,4 +31,7 @@ struct mag_buf;
 void demodulate2400 (struct mag_buf *mag);
 void demodulate2400AC (struct mag_buf *mag);
 
+extern mag_t g_snr1;
+extern mag_t g_snr2;
+
 #endif

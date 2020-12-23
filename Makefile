@@ -1,42 +1,42 @@
 PROGNAME=readsb
-READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
-
+#READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
+READSB_VERSION := main
 RTLSDR ?= yes
 BLADERF ?= no
 PLUTOSDR ?= no
 AGGRESSIVE ?= yes
 HAVE_BIASTEE ?= yes
 
-CPPFLAGS += -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
+CFLAGS += -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include/ -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
 
 #OPTIMIZE ?= -march=native
 
 DIALECT = -std=c11
-CFLAGS := $(DIALECT) -g -W -D_DEFAULT_SOURCE -Wall -Werror -fno-common -O3 $(OPTIMIZE) $(CFLAGS)
-LIBS = -pthread -lpthread -lm -lz -lrt
+CFLAGS += $(DIALECT) -g -W -D_DEFAULT_SOURCE -Wall -Werror -fno-common -O3 $(OPTIMIZE)
+LIBS = -pthread -lpthread -lm -lz -lrt -ldbus-1
 
 ifeq ($(AGGRESSIVE), yes)
-  CPPFLAGS += -DALLOW_AGGRESSIVE
+  CFLAGS += -DALLOW_AGGRESSIVE
 endif
 
 ifeq ($(HISTORY), yes)
-  CPPFLAGS += -DALL_JSON=1
+  CFLAGS += -DALL_JSON=1
 endif
 
 ifneq ($(AIRCRAFT_HASH_BITS),)
-  CPPFLAGS += -DAIRCRAFT_HASH_BITS=$(AIRCRAFT_HASH_BITS)
+  CFLAGS += -DAIRCRAFT_HASH_BITS=$(AIRCRAFT_HASH_BITS)
 endif
 
 ifeq ($(RTLSDR), yes)
   SDR_OBJ += sdr_rtlsdr.o
-  CPPFLAGS += -DENABLE_RTLSDR
+  CFLAGS += -DENABLE_RTLSDR
 
   ifeq ($(HAVE_BIASTEE), yes)
-    CPPFLAGS += -DENABLE_RTLSDR_BIASTEE
+    CFLAGS += -DENABLE_RTLSDR_BIASTEE
   endif
 
   ifdef RTLSDR_PREFIX
-    CPPFLAGS += -I$(RTLSDR_PREFIX)/include
+    CFLAGS += -I$(RTLSDR_PREFIX)/include
     LDFLAGS += -L$(RTLSDR_PREFIX)/lib
   else
     CFLAGS += $(shell pkg-config --cflags librtlsdr)
@@ -52,14 +52,14 @@ endif
 
 ifeq ($(BLADERF), yes)
   SDR_OBJ += sdr_bladerf.o sdr_ubladerf.o
-  CPPFLAGS += -DENABLE_BLADERF
+  CFLAGS += -DENABLE_BLADERF
   CFLAGS += $(shell pkg-config --cflags libbladeRF)
   LIBS_SDR += $(shell pkg-config --libs libbladeRF)
 endif
 
 ifeq ($(PLUTOSDR), yes)
     SDR_OBJ += sdr_plutosdr.o
-    CPPFLAGS += -DENABLE_PLUTOSDR
+    CFLAGS += -DENABLE_PLUTOSDR
     CFLAGS += $(shell pkg-config --cflags libiio libad9361)
     LIBS_SDR += $(shell pkg-config --libs libiio libad9361)
 endif
@@ -73,15 +73,15 @@ ifneq ($(shell cat .version 2>/dev/null),prefix $(READSB_VERSION))
 endif
 
 readsb.o: readsb.c *.h .version
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.c *.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-readsb: readsb.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o demod_2400.o stats.o cpr.o icao_filter.o track.o util.o fasthash.o convert.o sdr_ifile.o sdr_beast.o sdr.o ais_charset.o globe_index.o geomag.o receiver.o aircraft.o $(SDR_OBJ) $(COMPAT)
+readsb: readsb.o dbus.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o demod_2400.o stats.o cpr.o icao_filter.o track.o util.o fasthash.o convert.o sdr_ifile.o sdr_beast.o sdr.o ais_charset.o globe_index.o geomag.o receiver.o aircraft.o $(SDR_OBJ) $(COMPAT)
 	$(CC) -g -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBS_SDR) -lncurses
 
-viewadsb: viewadsb.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o stats.o cpr.o icao_filter.o track.o util.o fasthash.o ais_charset.o globe_index.o geomag.o receiver.o aircraft.o $(COMPAT)
+viewadsb: viewadsb.o dbus.o anet.o interactive.o mode_ac.o mode_s.o comm_b.o net_io.o crc.o stats.o cpr.o icao_filter.o track.o util.o fasthash.o ais_charset.o globe_index.o geomag.o receiver.o aircraft.o $(COMPAT)
 	$(CC) -g -o $@ $^ $(LDFLAGS) $(LIBS) -lncurses
 
 clean:
@@ -91,19 +91,19 @@ cprtest: cprtests
 	./cprtests
 
 cprtests: cpr.o cprtests.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -g -o $@ $^ -lm
+	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 
 crctests: crc.c crc.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -g -DCRCDEBUG -o $@ $<
+	$(CC) $(CFLAGS) -g -DCRCDEBUG -o $@ $<
 
 benchmarks: convert_benchmark
 	./convert_benchmark
 
 oneoff/convert_benchmark: oneoff/convert_benchmark.o convert.o util.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -g -o $@ $^ -lm
+	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 
 oneoff/decode_comm_b: oneoff/decode_comm_b.o comm_b.o ais_charset.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -g -o $@ $^ -lm
+	$(CC) $(CFLAGS) -g -o $@ $^ -lm
 
 reinstall: clean
 	make -j5

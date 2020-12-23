@@ -337,6 +337,7 @@ typedef double mag_t;
 #include "globe_index.h"
 #include "receiver.h"
 #include "aircraft.h"
+#include "mydbus.h"
 
 //======================== structure declarations =========================
 

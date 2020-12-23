@@ -1394,6 +1394,8 @@ int main(int argc, char **argv) {
         }
     }
 
+    dbus_init();
+
     pthread_mutex_lock(&Modes.mainThreadMutex);
 
     struct timespec ts;
@@ -1463,6 +1465,8 @@ int main(int argc, char **argv) {
 
     pthread_mutex_destroy(&Modes.mainThreadMutex);
     pthread_cond_destroy(&Modes.mainThreadCond);
+
+    dbus_join();
 
     trackForceStats();
 
