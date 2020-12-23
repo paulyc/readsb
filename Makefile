@@ -1,5 +1,6 @@
 PROGNAME=readsb
 READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
+READSB_VERSION := paulyc-dev
 
 RTLSDR ?= yes
 BLADERF ?= no
@@ -9,7 +10,7 @@ HAVE_BIASTEE ?= yes
 
 CPPFLAGS += -DMODES_READSB_VERSION=\"$(READSB_VERSION)\" -D_GNU_SOURCE
 
-#OPTIMIZE ?= -march=native
+OPTIMIZE ?= -march=native
 
 DIALECT = -std=c11
 CFLAGS := $(DIALECT) -g -W -D_DEFAULT_SOURCE -Wall -Werror -fno-common -O2 $(OPTIMIZE) $(CFLAGS)
