@@ -43,7 +43,7 @@ static void *dbusThreadEntryPoint(void *arg) {
     }
 
     dbus_bus_add_match(bus, 
-         "type='signal',path_namespace='/io/github/readsb'",
+         "type='signal',path='/io/github/readsb'",
          NULL); // see signals from the given interface
     dbus_connection_flush(bus);
     if (dbus_error_is_set(&err)) { 
@@ -64,7 +64,7 @@ static void *dbusThreadEntryPoint(void *arg) {
             pthread_mutex_unlock(&dbusThreadMutex);
             char* sparam = "";
             double dparam = 0.0;
-            if (dbus_message_is_signal(msg, "/io/github/readsb", "SetVar")) {
+            if (dbus_message_is_signal(msg, "io.github.readsb", "SetVar")) {
                 // read the parameters
                 if (!dbus_message_iter_init(msg, &args)) {
                     fprintf(stderr, "Message has no arguments!\n"); 
@@ -89,7 +89,12 @@ static void *dbusThreadEntryPoint(void *arg) {
              }
 
             else if (dbus_message_is_signal(msg, "io.github.readsb", "GetVar")) {
-                printf("%f %f\n", g_dbusvars.demod_snr1, g_dbusvars.demod_snr2);
+                char buf[1024];
+                snprintf(buf, sizeof(buf), "snr1=%f snr2=%f", g_dbusvars.demod_snr1, g_dbusvars.demod_snr2);
+                DBusMessage *reply = dbus_message_new_signal("/io/github/readsb/Status", "io.github.readsb", buf);
+                dbus_connection_send(bus, reply, NULL);
+                dbus_connection_flush(bus);
+                dbus_message_unref(reply);
             }
             // free the message
             dbus_message_unref(msg);
