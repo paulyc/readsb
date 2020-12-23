@@ -43,8 +43,8 @@ static void *dbusThreadEntryPoint(void *arg) {
     }
 
     dbus_bus_add_match(bus, 
-         "type='signal',interface='io.github.readsb'", 
-         &err); // see signals from the given interface
+         "type='signal',path_namespace='/io/github/readsb'",
+         NULL); // see signals from the given interface
     dbus_connection_flush(bus);
     if (dbus_error_is_set(&err)) { 
         fprintf(stderr, "Match Error (%s)\n", err.message);
@@ -64,7 +64,7 @@ static void *dbusThreadEntryPoint(void *arg) {
             pthread_mutex_unlock(&dbusThreadMutex);
             char* sparam = "";
             double dparam = 0.0;
-            if (dbus_message_is_signal(msg, "io.github.readsb", "SetVar")) {
+            if (dbus_message_is_signal(msg, "/io/github/readsb", "SetVar")) {
                 // read the parameters
                 if (!dbus_message_iter_init(msg, &args)) {
                     fprintf(stderr, "Message has no arguments!\n"); 
