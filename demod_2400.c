@@ -586,7 +586,7 @@ void demodulate2400AC(struct mag_buf *mag) {
 
         mag_t f1f2_level = (f1_level > f2_level ? f1_level : f2_level);
 
-        mag_t midpoint = sqrtf(noise_level * f1f2_level); // geometric mean of the two levels
+        mag_t midpoint = sqrt(noise_level * f1f2_level); // geometric mean of the two levels
         mag_t signal_threshold = midpoint * M_SQRT2; // +3dB
         mag_t noise_threshold = midpoint / M_SQRT2; // -3dB
 
