@@ -167,7 +167,7 @@ void demodulate2400(struct mag_buf *mag) {
         }
 
         // Check for enough signal
-        if (base_signal < _4dB * base_noise) // about 3dB SNR
+        if (base_signal < _6dB * base_noise) // about 3dB SNR
             continue;
 
         // Check that the "quiet" bits 6,7,15,16,17 are actually quiet
@@ -587,8 +587,8 @@ void demodulate2400AC(struct mag_buf *mag) {
         mag_t f1f2_level = (f1_level > f2_level ? f1_level : f2_level);
 
         mag_t midpoint = sqrt(noise_level * f1f2_level); // geometric mean of the two levels
-        mag_t signal_threshold = midpoint * M_SQRT2; // +3dB
-        mag_t noise_threshold = midpoint / M_SQRT2; // -3dB
+        mag_t signal_threshold = midpoint * _6dB; // +3dB
+        mag_t noise_threshold = midpoint / _6dB; // -3dB
 
         // Looks like a real signal. Demodulate all the bits.
         unsigned uncertain_bits = 0;
