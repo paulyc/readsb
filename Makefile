@@ -1,6 +1,6 @@
 PROGNAME=readsb
-READSB_VERSION := "$(shell echo -n 'wiedehopf git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
-READSB_VERSION := paulyc-thefp
+READSB_VERSION := "$(shell echo -n 'paulyc git: '; git describe --abbrev --dirty --always; git show -s --format=format:"(%s, %cd)" | tr -cd '[a-z],[A-Z],[0-9],:, ,\-,_,(,)')"
+READSB_VERSION ?= paulyc-thefp
 
 RTLSDR ?= yes
 BLADERF ?= no

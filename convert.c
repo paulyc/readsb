@@ -34,7 +34,8 @@ static mag_t *uc8_lookup;
 
 static const mag_t INV_INT8 = 1.0 / 127.5;
 #define _dB(x) (pow(10.0, (x)/20.0))
-static const mag_t _1_dB = _dB(1);
+static const mag_t _x_dB = _dB(2);
+
 #if 0
 static const mag_t INV_INT8_MIN = 1.0 / 128.0;
 static const mag_t INV_INT8_MIN = 1.0 / 128.0;
@@ -68,7 +69,7 @@ static bool init_uc8_lookup() {
             magsq = fI * fI + fQ * fQ;
   //          if (magsq > 1.0)
   //              magsq = 1.0;
-            mag_t mag = sqrt(magsq) * _1_dB;
+            mag_t mag = sqrt(magsq) * _x_dB;
 
             uc8_lookup[le16toh((i * 256) + q)] = mag;
         }
@@ -146,8 +147,8 @@ static void convert_uc8_generic(void *iq_data,
     mag_t sum_level = 0, sum_power = 0;
 
     for (i = 0; i < nsamples; ++i) {
-        fI = ( *in++ -127.5) * INV_INT8 * _1_dB;
-        fQ = ( *in++ -127.5) * INV_INT8 * _1_dB;
+        fI = ( *in++ -127.5) * INV_INT8 * _x_dB;
+        fQ = ( *in++ -127.5) * INV_INT8 * _x_dB;
 
         // DC block
         if (dcfilter) {
