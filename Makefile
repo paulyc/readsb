@@ -107,3 +107,7 @@ reinstall: readsb
 	sudo cp readsb /usr/local/bin/readsb
 	sudo systemctl start readsb
 .PHONY: reinstall
+
+affinity:
+	./affinity.sh
+.PHONY: affinity
